@@ -72,7 +72,7 @@ class Rules extends Command
                                 "**3)** At least try to get along, but if you can't/won't I will turn this server around and make you regret it!".PHP_EOL.
                                 "**4)** Again, DON'T BE A RETARD!".PHP_EOL.
                                 "**5)** Agree to these terms in <#{$guild->channels->get('name', 'bot-commands')->id}> by typing `.rules agree`";
-                            $message->reply($response);
+                            $message->channel->sendMessage($response);
                             break;
                         default:
                             $message->reply('you need to "agree".');
