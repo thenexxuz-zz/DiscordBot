@@ -42,7 +42,6 @@ class LogChat extends Command
         try {
             $discordClient = new DiscordCommandClient([
                 'token' => env('DISCORD_TOKEN'),
-                'prefix' => '.',
             ]);
         }
         catch (\Exception $exception) {
