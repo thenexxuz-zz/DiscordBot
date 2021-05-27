@@ -57,7 +57,7 @@ class Rules extends Command
                                 $guild->members->fetch($message->author->id)
                                     ->done(function (Member $member) use ($message) {
                                         $member->addRole("775042190761525299")->done(function () use ($message) {
-                                            $message->reply('welcome!');
+                                            $message->reply('Welcome!');
                                         }, function ($e) use ($message) {
                                             $message->reply("you're already a member.");
                                         });

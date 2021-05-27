@@ -56,37 +56,28 @@ class Poll extends Command
                     if (is_numeric(substr($command, '0', '1'))) {
                         $pollNum = explode(' ', $command);
 
-                        $message->react('🤷')->done(function () use ($message, $pollNum) {
-                            $message->react((intval($pollNum[0]) > 9) ? '🔟' : '🤷')->done(function () use ($message, $pollNum) {
-                                $message->react((intval($pollNum[0]) > 8) ? '9️⃣' : '🤷')->done(function () use ($message, $pollNum) {
-                                    $message->react((intval($pollNum[0]) > 7) ? '8️⃣' : '🤷')->done(function () use ($message, $pollNum) {
-                                        $message->react((intval($pollNum[0]) > 6) ? '7️⃣' : '🤷')->done(function () use ($message, $pollNum) {
-                                            $message->react((intval($pollNum[0]) > 5) ? '6️⃣' : '🤷')->done(function () use ($message, $pollNum) {
-                                                $message->react((intval($pollNum[0]) > 4) ? '5️⃣' : '🤷')->done(function () use ($message, $pollNum) {
-                                                    $message->react((intval($pollNum[0]) > 3) ? '4️⃣' : '🤷')->done(function () use ($message, $pollNum) {
-                                                        $message->react((intval($pollNum[0]) > 2) ? '3️⃣' : '🤷')->done(function () use ($message, $pollNum) {
-                                                            $message->react((intval($pollNum[0]) > 1) ? '2️⃣' : '🤷')->done(function () use ($message, $pollNum) {
-                                                                if (intval($pollNum[0]) >= 1) {
-                                                                    $message->react('1️⃣');
-                                                                }
-                                                            });
-                                                        });
-                                                    });
-                                                });
-                                            });
-                                        });
-                                    });
-                                });
-                            });
-                        });
+                        switch (intval($pollNum[0])) {
+                            case 10: $message->react('🔟');
+                            case 9:  $message->react('9️⃣');
+                            case 8:  $message->react('8️⃣');
+                            case 7:  $message->react('7️⃣');
+                            case 6:  $message->react('6️⃣');
+                            case 5:  $message->react('5️⃣');
+                            case 4:  $message->react('4️⃣');
+                            case 3:  $message->react('3️⃣');
+                            default:
+                            case 2:  $message->react('2️⃣');
+                                     $message->react('1️⃣');
+                        }
                     } else {
-                        $message->react('👍')->done(function () use ($message) {
-                            $message->react('👎')->done(function () use ($message) {
-                                $message->react('🤔')->done(function () use ($message) {
-                                    $message->react('🤷');
-                                });
-                            });
-                        });
+                        if ($command === '?' || $command === '') {
+                            $message->reply("Usage: .poll # message\n#: 2-10 optional\n?: this help message");
+                        } else {
+                            $message->react('👍');
+                            $message->react('👎');
+                            $message->react('🤔');
+                            $message->react('🤷');
+                        }
                     }
                 });
             } catch (\Exception $exception) {
