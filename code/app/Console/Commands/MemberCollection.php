@@ -103,7 +103,6 @@ class MemberCollection extends Command
 
     private function collect(DiscordMember|User $member, int $guildId = 0, string $guildName = ''): void
     {
-
         if ($guildId === 0) {
             $guildId = $member->guild->id;
         }

@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
+use JetBrains\PhpStorm\ArrayShape;
 
 class UserFactory extends Factory
 {
@@ -13,14 +14,20 @@ class UserFactory extends Factory
      *
      * @var string
      */
-    protected $model = User::class;
+    protected string $model = User::class;
 
     /**
      * Define the model's default state.
      *
      * @return array
      */
-    public function definition()
+    #[ArrayShape([
+        'name' => "string",
+        'email' => "string",
+        'email_verified_at' => "\Illuminate\Support\Carbon",
+        'password' => "string",
+        'remember_token' => "string"
+    ])] public function definition(): array
     {
         return [
             'name' => $this->faker->name,
