@@ -25,5 +25,5 @@ use Illuminate\Support\Carbon;
  */
 class Guild extends Model
 {
-    protected array $fillable = ['id'];
+    protected $fillable = ['id'];
 }

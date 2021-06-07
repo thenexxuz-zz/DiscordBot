@@ -31,5 +31,5 @@ use Illuminate\Support\Carbon;
  */
 class Member extends Model
 {
-    protected array $fillable = ['id', 'guild_id'];
+    protected $fillable = ['id', 'guild_id'];
 }
