@@ -26,12 +26,12 @@ class DatabaseSeeder extends Seeder
             $discordClient->on('ready', function ($discordClient) {
                 $guild = Guild::find(env('DISCORD_GUILD_ID'));
                 $roles = [
-                    ['name' => 'Red',    'value' => 20,   "color" => 0xff0000],
-                    ['name' => 'Orange', 'value' => 40,   "color" => 0xffa500],
-                    ['name' => 'Yellow', 'value' => 60,   "color" => 0xffff00],
-                    ['name' => 'Green',  'value' => 80,   "color" => 0x00ff00],
-                    ['name' => 'Blue',   'value' => 100,  "color" => 0x0000ff],
                     ['name' => 'Purple', 'value' => 1000, "color" => 0xff00ff],
+                    ['name' => 'Blue',   'value' => 100,  "color" => 0x0000ff],
+                    ['name' => 'Green',  'value' => 80,   "color" => 0x00ff00],
+                    ['name' => 'Yellow', 'value' => 60,   "color" => 0xffff00],
+                    ['name' => 'Orange', 'value' => 40,   "color" => 0xffa500],
+                    ['name' => 'Red',    'value' => 20,   "color" => 0xff0000],
                 ];
                 foreach ($roles as $role) {
                     $r = new Role([
