@@ -61,10 +61,7 @@ class Points extends Command
                         $this->showHelp($discordClient, $message->channel_id);
                     } else {
                         try {
-                            $m = Member::where([
-                                'id' => $message->author->id,
-                                'guild_id' => $message->guild_id,
-                            ])->first();
+                            $m = $this->getMember($message->author->id, $message->guild_id);
                             if (is_null($m->id)) {
                                 throw new Exception('You are not in the points program');
                             }
@@ -92,10 +89,7 @@ class Points extends Command
                 });
                 $discordClient->registerCommand('balance', function (Message $message) use ($discordClient) {
                     try {
-                        $m = Member::where([
-                            'id' => $message->author->id,
-                            'guild_id' => $message->guild_id,
-                        ])->first();
+                        $m = $this->getMember($message->author->id, $message->guild_id);
 
                         if (is_null($m->id)) {
                             throw new Exception('You are not in the points program');
@@ -116,10 +110,7 @@ class Points extends Command
                         $this->showHelp($discordClient, $message->channel_id);
                     } else {
                         try {
-                            $m = Member::where([
-                                'id' => $message->author->id,
-                                'guild_id' => $message->guild_id,
-                            ])->first();
+                            $m = $this->getMember($message->author->id, $message->guild_id);
                             if (is_null($m->id)) {
                                 throw new Exception('You are not in the points program');
                             }
@@ -130,10 +121,7 @@ class Points extends Command
                             $amount = $args[0];
                             $recipient = $args[1];
                             $recipientId = filter_var($recipient, FILTER_SANITIZE_NUMBER_INT);
-                            $r = Member::where([
-                                'id' => $recipientId,
-                                'guild_id' => $message->guild_id,
-                            ])->first();
+                            $r = $this->getMember($recipientId, $message->guild_id);
                             if (is_null($r->id)) {
                                 throw new Exception("$recipient is not in the points program.");
                             }
@@ -191,10 +179,7 @@ class Points extends Command
                         $this->showHelp($discordClient, $message->channel_id);
                     } else {
                         try {
-                            $m = Member::find([
-                                'id' => $message->author->id,
-                                'guild_id' => $message->guild_id,
-                            ])->first();
+                            $m = $this->getMember($message->author->id, $message->guild_id);
                             if (is_null($m->id)) {
                                 throw new Exception('You are not in the points program');
                             }
@@ -227,10 +212,7 @@ class Points extends Command
 
                 $discordClient->registerCommand('daily', function (Message $message) use ($discordClient) {
                     try {
-                        $m = Member::where([
-                            'id' => $message->author->id,
-                            'guild_id' => $message->guild_id,
-                        ])->first();
+                        $m = $this->getMember($message->author->id, $message->guild_id);
 
                         if (is_null($m->id)) {
                             throw new Exception('You are not in the points program');
@@ -271,10 +253,7 @@ class Points extends Command
 
                 $discordClient->registerCommand('timely', function (Message $message) use ($discordClient) {
                     try {
-                        $m = Member::where([
-                            'id' => $message->author->id,
-                            'guild_id' => $message->guild_id,
-                        ])->first();
+                        $m = $this->getMember($message->author->id, $message->guild_id);
 
                         if (is_null($m->id)) {
                             throw new Exception('You are not in the points program');
@@ -304,6 +283,53 @@ class Points extends Command
                         $this->showHelp($discordClient, $message->channel_id);
                     }
                 });
+                $discordClient->registerCommand('flip', function (Message $message) use ($discordClient) {
+                    $command = strtolower(substr($message->content, 6));
+                    if ($command === '') {
+                        $this->showHelp($discordClient, $message->channel_id);
+                    } else {
+                        $m = $this->getMember($message->author->id, $message->guild_id);
+                        $bet = filter_var($command, FILTER_SANITIZE_NUMBER_INT);
+                        if ($m->balance >= $bet) {
+                            $m->balance -= $bet;
+                            $m->save();
+                            $e = new Embed(
+                                $discordClient,
+                                [
+                                    'type' => 'rich',
+                                    'color' => 0x00ff00,
+                                    'title' => '__**Coin Flip**__',
+                                    'description' => 'Flipping a coin....',
+                                    'thumbnail' => new Image(
+                                        $discordClient,
+                                        [
+                                            'url' => 'https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/whatsapp/273/coin_1fa99.png'
+                                        ]
+                                    ),
+                                ]
+                            );
+                            $discordClient->getChannel($message->channel_id)
+                                ->sendEmbed($e)
+                                ->done(function(Message $message) use ($discordClient, $e, $m, $bet) {
+                                    $loop = $discordClient->getLoop();
+                                    $loop->addTimer(5, function() use ($discordClient, $message, $e, $m, $bet) {
+                                        $result = (random_int(0,99)) % 2;
+                                        $coin = $result ? 'tails' : 'heads';
+                                        if ($result) {
+                                            $m->balance += $bet * 1.5;
+                                            $m->save();
+                                        }
+                                        $e->description = "It landed on $coin! " .
+                                            (($result) ? "Sorry you lost." : "You WON!");
+                                        $discordClient->getChannel($message->channel_id)->sendEmbed($e);
+                                        $message->delete();
+                                    });
+                                });
+                        } else {
+                            throw new Exception('You do not have enough points to make that bet.');
+                        }
+                    }
+                });
             } catch (Exception $exception) {
                 print_r($exception->getMessage());
             }
@@ -315,6 +341,14 @@ class Points extends Command
         }
 
         return 0;
+    }
+
+    public function getMember(int $id, int $guild_id)
+    {
+        return Member::where([
+            'id' => $id,
+            'guild_id' => $guild_id,
+        ])->first();
     }
 
     public function showHelp($discordClient, $channelId): void
@@ -386,7 +420,7 @@ class Points extends Command
                             $discordClient,
                             [
                                 'name'  => '`.flip #`',
-                                'value' => 'Place a bet of `#`, flip a coin, see if you win 1.5x',
+                                'value' => 'Place a bet of `#`, flip a coin, if it lands on heads you win 1.5x your bet',
                                 'inline' => false
                             ]
                         ),
