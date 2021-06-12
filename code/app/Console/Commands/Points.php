@@ -283,6 +283,7 @@ class Points extends Command
                         $this->showHelp($discordClient, $message->channel_id);
                     }
                 });
+
                 $discordClient->registerCommand('flip', function (Message $message) use ($discordClient) {
                     $command = strtolower(substr($message->content, 6));
                     if ($command === '') {
@@ -330,6 +331,59 @@ class Points extends Command
                         }
                     }
                 });
+
+                $discordClient->registerCommand('wheel', function (Message $message) use ($discordClient) {
+                    $command = strtolower(substr($message->content, 7));
+                    if ($command === '') {
+                        $this->showHelp($discordClient, $message->channel_id);
+                    } else {
+                        $m = $this->getMember($message->author->id, $message->guild_id);
+                        $bet = filter_var($command, FILTER_SANITIZE_NUMBER_INT);
+                        if ($m->balance >= $bet) {
+                            $m->balance -= $bet;
+                            $m->save();
+
+                            $v = [1.5, 1.7, 2.4, 0.2, 1.2, 0.1, 0.3, 0.5];
+                            $e = new Embed(
+                                $discordClient,
+                                [
+                                    'type' => 'rich',
+                                    'color' => 0x00ff00,
+                                    'title' => '__**Wheel of Money**__',
+                                    'description' => 'Spinning the wheel.....',
+                                    'thumbnail' => new Image(
+                                        $discordClient,
+                                        [
+                                            'url' => 'https://static.vecteezy.com/system/protected/files/001/192/280/vecteezy_rainbow-spinning-wheel_1192280.png'
+                                        ]
+                                    ),
+                                    'fields' => $this->getWheel($discordClient, $v),
+                                ]
+                            );
+                            $discordClient->getChannel($message->channel_id)
+                                ->sendEmbed($e)
+                                ->done(function(Message $message) use ($discordClient, $e, $m, $bet, $v) {
+                                    $loop = $discordClient->getLoop();
+                                    $loop->addTimer(5, function() use ($discordClient, $message, $e, $m, $bet, $v) {
+                                        $result = (random_int(0,79)) % 8;
+                                        for ($i = 0; $i < $result; $i++) {
+                                            array_push($v, array_shift($v));
+                                        }
+                                        $prize = $bet * $v[1];
+                                        $m->balance += $prize;
+                                        $m->save();
+                                        $e->fields = $this->getWheel($discordClient, $v);
+                                        $e->description = "Wheel landed on $v[1]x." . PHP_EOL . "You win $prize!";
+                                        $discordClient->getChannel($message->channel_id)->sendEmbed($e);
+                                        $message->delete();
+                                    });
+                                });
+                        } else {
+                            throw new Exception('You do not have enough points to make that bet.');
+                        }
+
+                    }
+                });
             } catch (Exception $exception) {
                 print_r($exception->getMessage());
             }
@@ -343,7 +397,7 @@ class Points extends Command
         return 0;
     }
 
-    public function getMember(int $id, int $guild_id)
+    private function getMember(int $id, int $guild_id): Member
     {
         return Member::where([
             'id' => $id,
@@ -351,7 +405,26 @@ class Points extends Command
         ])->first();
     }
 
-    public function showHelp($discordClient, $channelId): void
+    private function getWheel(DiscordCommandClient $dcc, array $values): array
+    {
+        foreach ($values as $key => $value) {
+            $values[$key] = $value . 'x';
+        }
+        array_splice($values, 4, 0, ':arrow_up:');
+        $wheel = [];
+        $decoration = ['/', '-', '\\', '|', 'O', '|', '\\', '-', '/'];
+        foreach ($values as $key => $value) {
+            $wheel[] = new Field($dcc, [
+                'name'  => $value,
+                'value' => $decoration[$key],
+                'inline' => true
+            ]);
+        }
+
+        return $wheel;
+    }
+
+    private function showHelp($discordClient, $channelId): void
     {
         $discordClient->getChannel($channelId)->sendEmbed(
             new Embed(
