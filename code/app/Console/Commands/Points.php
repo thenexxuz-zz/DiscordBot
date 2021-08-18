@@ -52,6 +52,7 @@ class Points extends Command
             $discordClient = new DiscordCommandClient([
                 'token' => env('DISCORD_TOKEN'),
                 'prefix' => '.',
+                'defaultHelpCommand' => false,
             ]);
 
             try {
@@ -360,6 +361,18 @@ class Points extends Command
                                     'fields' => $this->getWheel($discordClient, $v),
                                 ]
                             );
+
+                            $e = new Embed(
+                                $discordClient,
+                                [
+                                    'type' => 'image',
+                                    'color' => 0x00ff00,
+                                    'title' => '__**Wheel of Money**__',
+                                    'description' => 'Spinning the wheel.....',
+
+                                ]
+                            );
+
                             $discordClient->getChannel($message->channel_id)
                                 ->sendEmbed($e)
                                 ->done(function(Message $message) use ($discordClient, $e, $m, $bet, $v) {

@@ -50,6 +50,7 @@ class MemberCollection extends Command
             $discordClient = new DiscordCommandClient([
                 'token' => env('DISCORD_TOKEN'),
                 'prefix' => '.',
+                'defaultHelpCommand' => false,
             ]);
         }
         catch (\Exception $exception) {

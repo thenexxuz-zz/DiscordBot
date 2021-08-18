@@ -45,6 +45,7 @@ class Rules extends Command
             $discordClient = new DiscordCommandClient([
                 'token' => env('DISCORD_TOKEN'),
                 'prefix' => '.',
+                'defaultHelpCommand' => false,
             ]);
 
             try {
@@ -70,7 +71,7 @@ class Rules extends Command
                                 "**1)** Follow Discord TOS".PHP_EOL.
                                 "**2)** I believe in the 1st amendment. Don't be stupid and post anything that violates laws! No doxxing, making threats of physical harm or anything that will make me need to speak with law enforcement.".PHP_EOL.
                                 "**3)** At least try to get along, but if you can't/won't I will turn this server around and make you regret it!".PHP_EOL.
-                                "**4)** Again, DON'T BE A RETARD!".PHP_EOL.
+                                "**4)** Again, DON'T BE STUPID!".PHP_EOL.
                                 "**5)** Agree to these terms in <#{$guild->channels->get('name', 'bot-commands')->id}> by typing `.rules agree`";
                             $message->channel->sendMessage($response);
                             break;

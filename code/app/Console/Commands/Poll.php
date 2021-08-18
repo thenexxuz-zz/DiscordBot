@@ -48,6 +48,7 @@ class Poll extends Command
             $discordClient = new DiscordCommandClient([
                 'token' => env('DISCORD_TOKEN'),
                 'prefix' => '.',
+                'defaultHelpCommand' => false,
             ]);
 
             try {
