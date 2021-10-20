@@ -43,7 +43,6 @@ class Poll extends Command
      */
     public function handle()
     {
-        $discordClient = null;
         try {
             $discordClient = new DiscordCommandClient([
                 'token' => env('DISCORD_TOKEN'),
